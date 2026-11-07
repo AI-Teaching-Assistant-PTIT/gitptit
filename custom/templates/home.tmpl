@@ -1,0 +1,54 @@
+{{template "base/head" .}}
+<div role="main" aria-label="GitPTIT Home" class="page-content home" style="padding-top: 0; background: var(--color-body);">
+	<section class="gitptit-hero">
+		<img class="logo" src="{{AssetUrlPrefix}}/img/logo.svg" alt="GitPTIT Logo">
+		<h1 class="gitptit-title">GitPTIT</h1>
+		<p class="gitptit-subtitle">Nền tảng quản lý mã nguồn nội bộ hiện đại, nhanh chóng và bảo mật dành riêng cho sinh viên và giảng viên Học viện Công nghệ Bưu chính Viễn thông.</p>
+		
+		<div class="gitptit-actions">
+			{{if not .IsSigned}}
+			<a href="{{AppSubUrl}}/user/login" class="gitptit-btn">Đăng nhập ngay</a>
+			{{if .EnableOpenIDSignIn}}
+			<a href="{{AppSubUrl}}/user/sign_up" class="gitptit-btn gitptit-btn-outline">Đăng ký tài khoản</a>
+			{{end}}
+			{{else}}
+			<a href="{{AppSubUrl}}/" class="gitptit-btn">Vào không gian làm việc</a>
+			{{end}}
+		</div>
+	</section>
+
+	<section class="gitptit-features">
+		<div class="gitptit-card">
+			<div class="gitptit-card-icon">
+				{{svg "octicon-rocket"}}
+			</div>
+			<h3 class="gitptit-card-title">Hiệu Năng Vượt Trội</h3>
+			<p class="gitptit-card-desc">Tối ưu hóa tài nguyên phần cứng, mang lại trải nghiệm mượt mà và phản hồi tức thì cho mọi tác vụ quản lý mã nguồn của bạn.</p>
+		</div>
+
+		<div class="gitptit-card">
+			<div class="gitptit-card-icon">
+				{{svg "octicon-shield"}}
+			</div>
+			<h3 class="gitptit-card-title">Bảo Mật Cao Cấp</h3>
+			<p class="gitptit-card-desc">Hệ thống phân quyền chi tiết, bảo vệ toàn diện dữ liệu và mã nguồn của bạn khỏi các truy cập trái phép từ bên ngoài.</p>
+		</div>
+
+		<div class="gitptit-card">
+			<div class="gitptit-card-icon">
+				{{svg "octicon-sync"}}
+			</div>
+			<h3 class="gitptit-card-title">Tích Hợp CI/CD</h3>
+			<p class="gitptit-card-desc">Tự động hóa quy trình kiểm thử và triển khai với Gitea Actions, giúp tiết kiệm thời gian phát triển dự án thực tế.</p>
+		</div>
+
+		<div class="gitptit-card">
+			<div class="gitptit-card-icon">
+				{{svg "octicon-people"}}
+			</div>
+			<h3 class="gitptit-card-title">Làm Việc Nhóm</h3>
+			<p class="gitptit-card-desc">Hỗ trợ Pull Request, Issue Tracking và Code Review chuyên nghiệp, phù hợp với môi trường học tập và làm việc nhóm tại PTIT.</p>
+		</div>
+	</section>
+</div>
+{{template "base/footer" .}}

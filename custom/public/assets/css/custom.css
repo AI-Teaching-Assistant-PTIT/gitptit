@@ -1,0 +1,222 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
+
+:root, [data-theme] {
+  --color-primary: #da251d;
+  --color-primary-dark-1: #b91f18;
+  --color-primary-dark-2: #9a1914;
+  --color-primary-dark-3: #7b1410;
+  --color-primary-dark-4: #5d0f0c;
+  --color-primary-dark-5: #3e0a08;
+  --color-primary-dark-6: #1f0504;
+  --color-primary-dark-7: #000000;
+  --color-primary-light-1: #e1433c;
+  --color-primary-light-2: #e7625b;
+  --color-primary-light-3: #ec807a;
+  --color-primary-light-4: #f29f9a;
+  --color-primary-light-5: #f6bdb9;
+  --color-primary-light-6: #fbddd9;
+  --color-primary-light-7: #ffffff;
+  --color-primary-alpha-10: rgba(218, 37, 29, 0.1);
+  --color-primary-alpha-20: rgba(218, 37, 29, 0.2);
+  --color-primary-alpha-30: rgba(218, 37, 29, 0.3);
+  --color-primary-alpha-40: rgba(218, 37, 29, 0.4);
+  --color-primary-alpha-50: rgba(218, 37, 29, 0.5);
+  --color-primary-alpha-60: rgba(218, 37, 29, 0.6);
+  --color-primary-alpha-70: rgba(218, 37, 29, 0.7);
+  --color-primary-alpha-80: rgba(218, 37, 29, 0.8);
+  --color-primary-alpha-90: rgba(218, 37, 29, 0.9);
+}
+
+body {
+  font-family: 'Outfit', sans-serif !important;
+}
+
+/* Custom GitPTIT Home Page Styling */
+.gitptit-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 8rem 2rem 6rem;
+  background: radial-gradient(circle at top right, rgba(218, 37, 29, 0.12), transparent 40%),
+              radial-gradient(circle at bottom left, rgba(218, 37, 29, 0.08), transparent 40%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.gitptit-hero .logo {
+  animation: float 6s ease-in-out infinite;
+  filter: drop-shadow(0 15px 35px rgba(218, 37, 29, 0.3));
+  margin-bottom: 2rem;
+  width: 200px;
+  height: auto;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+}
+
+.gitptit-title {
+  font-size: 4.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #da251d, #ff5b5b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+
+.gitptit-subtitle {
+  font-size: 1.25rem;
+  color: var(--color-text);
+  opacity: 0.85;
+  max-width: 650px;
+  margin-bottom: 3rem;
+  line-height: 1.6;
+}
+
+.gitptit-actions {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.gitptit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white !important;
+  background: var(--color-primary);
+  border-radius: 50px;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(218, 37, 29, 0.3);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 2px solid var(--color-primary);
+}
+
+.gitptit-btn:hover {
+  background: var(--color-primary-dark-1);
+  border-color: var(--color-primary-dark-1);
+  box-shadow: 0 12px 25px rgba(218, 37, 29, 0.4);
+  transform: translateY(-3px);
+}
+
+.gitptit-btn-outline {
+  background: transparent;
+  color: var(--color-primary) !important;
+  box-shadow: none;
+}
+
+.gitptit-btn-outline:hover {
+  background: var(--color-primary-alpha-10);
+  box-shadow: 0 8px 20px rgba(218, 37, 29, 0.15);
+}
+
+.gitptit-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  padding: 0 10%;
+  margin-bottom: 6rem;
+  margin-top: -2rem;
+  position: relative;
+  z-index: 10;
+}
+
+.gitptit-card {
+  background: var(--color-box-body);
+  border: 1px solid var(--color-secondary);
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gitptit-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(135deg, rgba(218, 37, 29, 0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 0;
+}
+
+.gitptit-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.gitptit-card:hover {
+  transform: translateY(-12px);
+  border-color: var(--color-primary-alpha-40);
+  box-shadow: 0 20px 40px rgba(218, 37, 29, 0.12);
+}
+
+.gitptit-card:hover::before {
+  opacity: 1;
+}
+
+.gitptit-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  background: rgba(218, 37, 29, 0.1);
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gitptit-card:hover .gitptit-card-icon {
+  transform: scale(1.15) rotate(8deg);
+  background: var(--color-primary);
+  color: white;
+  border-radius: 50%;
+}
+
+.gitptit-card-icon svg {
+  width: 36px;
+  height: 36px;
+}
+
+.gitptit-card-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.gitptit-card-desc {
+  font-size: 1rem;
+  color: var(--color-text-light);
+  line-height: 1.7;
+}
+
+@media (max-width: 768px) {
+  .gitptit-title {
+    font-size: 3rem;
+  }
+  .gitptit-hero {
+    padding: 5rem 1rem 4rem;
+  }
+  .gitptit-features {
+    padding: 0 1rem;
+  }
+}

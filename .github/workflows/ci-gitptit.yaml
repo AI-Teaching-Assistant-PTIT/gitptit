@@ -1,0 +1,123 @@
+name: CI - GitPTIT
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*.*.*", "v*"]
+  pull_request:
+    branches: ["main"]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  ci-pipeline:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set variables
+        run: |
+          # Lấy tên repository (org/repo) và chuyển sang chữ thường (do ghcr.io yêu cầu lowercase)
+          ORG_LOWERCASE=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE_NAME=${ORG_LOWERCASE}/gitptit" >> $GITHUB_ENV
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            # Nếu là PR thì lấy prefix pr- kèm theo số ID của PR
+            echo "IMAGE_TAG=pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+            echo "TARGET_ENV=demo" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == refs/tags/* ]] || [[ "${{ github.event_name }}" == "release" ]]; then
+            # Nếu là Release / Tag thì đẩy lên prod
+            echo "IMAGE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+            echo "TARGET_ENV=prod" >> $GITHUB_ENV
+          else
+            # Nếu push lên nhánh main thì lấy thời gian commit (Format: YYYY-MM-DD_HHhMMmSSs) và đẩy lên demo
+            COMMIT_TIME=$(git log -1 --format=%cd --date=format:"%Y-%m-%d_%Hh%Mm%Ss")
+            echo "IMAGE_TAG=${COMMIT_TIME}" >> $GITHUB_ENV
+            echo "TARGET_ENV=demo" >> $GITHUB_ENV
+          fi
+
+      - name: Build Docker image
+        # Build image cục bộ để Trivy quét trước khi push
+        run: |
+          docker build -t ${{ env.IMAGE_NAME }}:local -f Dockerfile .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "${{ env.IMAGE_NAME }}:local"
+          format: "table"
+          output: "trivy-report.txt"
+          exit-code: "1" # Đổi thành '1' nếu bạn muốn fail pipeline khi phát hiện lỗi CRITICAL
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          severity: "CRITICAL"
+
+      - name: Add Trivy report to Summary
+        if: always()
+        run: |
+          if [ -f trivy-report.txt ]; then
+            echo "### 🛡️ Trivy Vulnerability Scan Report" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat trivy-report.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            # In ra console để dễ theo dõi trong log
+            cat trivy-report.txt
+          fi
+
+      - name: Log in to the Container registry
+        # Chỉ login và push khi merge vào nhánh main (không push khi tạo PR)
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag and Push Docker image
+        if: github.event_name != 'pull_request'
+        run: |
+          docker tag ${{ env.IMAGE_NAME }}:local ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          docker tag ${{ env.IMAGE_NAME }}:local ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} --all-tags
+
+      - name: Update Helm chart values and commit to config-repo
+        if: github.event_name != 'pull_request'
+        run: |
+          # Clone config-repo: đây là repo Argo CD lấy values (xem argocd/applicationset.yaml)
+          git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/AI-Teaching-Assistant-PTIT/config-repo.git config-repo
+
+          # Cập nhật image tag trong file values.yaml của môi trường tương ứng (demo hoặc prod)
+          sed -i -E 's/^(\s*tag:\s*).*$/\1"${{ env.IMAGE_TAG }}"/' config-repo/gitptit/${{ env.TARGET_ENV }}/values.yaml
+
+          # Commit và push thay đổi lên repository config-repo
+          cd config-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -u
+          git commit -m "chore(gitptit): update image tag to ${{ env.IMAGE_TAG }} [skip ci]" || echo "No changes to commit"
+          git push origin main
+
+      - name: Generate Job Summary
+        run: |
+          echo "### 🚀 CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag:** \`${{ env.IMAGE_TAG }}\`" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ github.event_name }}" != "pull_request" ]]; then
+            echo "- **Status:** ✅ Image was pushed to GHCR and Helm values were updated." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Status:** ℹ️ Build and Trivy scan only (PR mode, no image pushed)." >> $GITHUB_STEP_SUMMARY
+          fi

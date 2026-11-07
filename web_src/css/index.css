@@ -87,5 +87,6 @@
 @import "./actions.css";
 
 @import "./helpers.css";
+@import "./custom.css";
 
 @tailwind utilities;

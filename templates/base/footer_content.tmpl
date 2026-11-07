@@ -1,24 +1,6 @@
 <footer class="page-footer" role="group" aria-label="{{ctx.Locale.Tr "aria.footer"}}">
 	<div class="left-links" role="contentinfo" aria-label="{{ctx.Locale.Tr "aria.footer.software"}}">
-		{{if ShowFooterPoweredBy}}
-			<a target="_blank" href="https://about.gitea.com">{{ctx.Locale.Tr "powered_by" "Gitea"}}</a>
-		{{end}}
-		{{if (or .ShowFooterVersion .PageIsAdmin)}}
-			<span>
-			{{ctx.Locale.Tr "version"}}:
-			{{if .IsAdmin}}
-				<a href="{{AppSubUrl}}/-/admin/config">{{AppVer}}</a>
-			{{else}}
-				{{AppVer}}
-			{{end}}
-			</span>
-		{{end}}
-		{{if and .TemplateLoadTimes ShowFooterTemplateLoadTime}}
-			<span>
-				{{ctx.Locale.Tr "page"}}: <strong>{{LoadTimes .PageStartTime}}</strong>
-				{{ctx.Locale.Tr "template"}}{{if .TemplateName}} {{.TemplateName}}{{end}}: <strong>{{call .TemplateLoadTimes}}</strong>
-			</span>
-		{{end}}
+		<span style="font-weight: 500;">GitPTIT - Nền tảng quản lý mã nguồn nội bộ</span>
 		{{if $.ViteModeIsDev}}<span class="ui basic label primary">ViteDevMode</span>{{end}}
 	</div>
 	<div class="right-links" role="group" aria-label="{{ctx.Locale.Tr "aria.footer.links"}}">
@@ -34,8 +16,7 @@
 				{{end -}}
 			</div>
 		</div>
-		<a href="{{AssetUrlPrefix}}/licenses.txt">{{ctx.Locale.Tr "licenses"}}</a>
-		{{if .EnableSwagger}}<a href="{{AppSubUrl}}/api/swagger">API</a>{{end}}
+		{{if and .EnableSwagger .IsAdmin}}<a href="{{AppSubUrl}}/api/swagger">API</a>{{end}}
 		{{template "custom/extra_links_footer" .}}
 	</div>
 </footer>

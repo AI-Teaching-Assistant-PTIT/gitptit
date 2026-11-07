@@ -60,7 +60,11 @@ cpu.out
 /bin
 /dist
 /custom/*
+!/custom/conf
+/custom/conf/*
 !/custom/conf/app.example.ini
+!/custom/public
+!/custom/templates
 /data
 /indexers
 /log
