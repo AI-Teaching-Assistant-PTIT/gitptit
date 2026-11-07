@@ -92,27 +92,8 @@ COPY ./scripts/bootstrap.sh /usr/local/bin/gitptit-bootstrap
 RUN chmod 0755 /usr/local/bin/gitptit-bootstrap \
     && chown -R 1000:1000 /app/gitea/custom
 
-ENV USER=git \
-    GITEA_CUSTOM=/app/gitea/custom \
-    TZ=Asia/Ho_Chi_Minh \
-    USER_UID=1000 \
-    USER_GID=1000 \
-    GITEA____APP_NAME=GITPTIT \
-    GITEA__server__HTTP_PORT=3000 \
-    GITEA__server__LFS_START_SERVER=true \
-    GITEA__database__DB_TYPE=postgres \
-    GITEA__server__SSH_PORT=2222 \
-    GITEA__server__DISABLE_SSH=false \
-    GITEA__service__DISABLE_REGISTRATION=false \
-    GITEA__service__ALLOW_ONLY_EXTERNAL_REGISTRATION=true \
-    GITEA__server__LANDING_PAGE=explore \
-    GITEA__actions__ENABLED=true \
-    GITEA__oauth2_client__ACCOUNT_LINKING=auto \
-    GITEA__oauth2_client__UPDATE_AVATAR=true \
-    GITEA__oauth2_client__ENABLE_AUTO_REGISTRATION=true \
-    GITEA__oauth2_client__USERNAME=preferred_username \
-    GITEA__service__VALID_USERNAME_CHARS=a-zA-Z0-9_-. \
-    GITEA__security__INSTALL_LOCK=true
+ENV USER=git
+ENV GITEA_CUSTOM=/app/gitea/custom
 
 VOLUME ["/data"]
 
