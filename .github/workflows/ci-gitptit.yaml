@@ -52,7 +52,9 @@ jobs:
       - name: Build Docker image
         # Build image cục bộ để Trivy quét trước khi push
         run: |
-          docker build -t ${{ env.IMAGE_NAME }}:local -f Dockerfile .
+          docker build -t ${{ env.IMAGE_NAME }}:local -f Dockerfile \
+            --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+            .
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
