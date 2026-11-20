@@ -20,7 +20,7 @@ readonly SSO_ATTEMPTS="${GITPTIT_SSO_ATTEMPTS:-3}"
 # generation so the same image works in both Compose and Kubernetes.
 load_secret_files() {
   local name file_var file
-  for name in GITEA__database__PASSWD GITEA_ADMIN_PASSWORD SSO_SECRET; do
+  for name in GITEA__database__PASSWD GITEA_ADMIN_PASSWORD SSO_SECRET GOOGLE_CLIENT_SECRET; do
     file_var="${name}_FILE"
     file="${!file_var:-}"
     if [[ -z "${!name:-}" && -n "$file" ]]; then
@@ -78,8 +78,9 @@ user_exists() {
 }
 
 auth_source_id() {
+  local target_name="${1:-$AUTH_SOURCE_NAME}"
   run_gitea admin auth list \
-    | awk -v name="$AUTH_SOURCE_NAME" 'NR > 1 && $2 == name { print $1; exit }'
+    | awk -v name="$target_name" 'NR > 1 && $2 == name { print $1; exit }'
 }
 
 ensure_admin() {
@@ -149,6 +150,38 @@ ensure_sso() {
     'SSO_CLIENT_ID, SSO_SECRET và kết nối tới login.microsoftonline.com. Gitea vẫn khởi động.'
 }
 
+ensure_google_sso() {
+  local google_name="${GOOGLE_AUTH_NAME:-Google}"
+
+  if [[ -z "${GOOGLE_CLIENT_ID:-}" && -z "${GOOGLE_CLIENT_SECRET:-}" ]]; then
+    log 'Bỏ qua Google SSO: chưa cung cấp biến GOOGLE_CLIENT_*.'
+    return 0
+  fi
+
+  require_env GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET
+
+  local source_id
+  source_id="$(auth_source_id "$google_name")"
+
+  if [[ -n "$source_id" ]]; then
+    run_gitea admin auth update-oauth --id "$source_id" \
+      --name "$google_name" \
+      --provider gplus \
+      --key "$GOOGLE_CLIENT_ID" \
+      --secret "$GOOGLE_CLIENT_SECRET" \
+      --scopes 'openid email profile'
+    log "Đã cập nhật nguồn đăng nhập ${google_name} (id ${source_id})."
+  else
+    run_gitea admin auth add-oauth \
+      --name "$google_name" \
+      --provider gplus \
+      --key "$GOOGLE_CLIENT_ID" \
+      --secret "$GOOGLE_CLIENT_SECRET" \
+      --scopes 'openid email profile'
+    log "Đã tạo nguồn đăng nhập ${google_name}."
+  fi
+}
+
 # Chart triển khai một replica với strategy Recreate nên bootstrap luôn chạy đơn lẻ.
 bootstrap() {
   load_secret_files
@@ -156,6 +189,7 @@ bootstrap() {
   migrate_database
   ensure_admin
   ensure_sso
+  ensure_google_sso
 }
 
 case "${1:-}" in
