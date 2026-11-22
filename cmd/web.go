@@ -225,6 +225,15 @@ func serveInstalled(c *cli.Command) error {
 	}
 
 	gtprof.EnableBuiltinTracer(util.Iif(setting.IsProd, 2000*time.Millisecond, 100*time.Millisecond))
+	otelShutdown, otelErr := gtprof.EnableOtelTracer(graceful.GetManager().ShutdownContext())
+	if otelErr != nil {
+		log.Error("Unable to enable OpenTelemetry tracer: %v", otelErr)
+	}
+	defer func() {
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = otelShutdown(shutdownCtx)
+	}()
 
 	// Set up Chi routes
 	webRoutes := routers.NormalRoutes()

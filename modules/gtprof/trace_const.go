@@ -19,4 +19,6 @@ const (
 	TraceAttrDbSQL       = "db.sql"
 	TraceAttrGitCommand  = "git.command"
 	TraceAttrHTTPRoute   = "http.route"
+	TraceAttrHTTPMethod  = "http.request.method"
+	TraceAttrHTTPStatus  = "http.response.status_code"
 )

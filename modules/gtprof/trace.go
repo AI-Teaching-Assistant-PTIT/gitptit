@@ -108,6 +108,14 @@ func (s *TraceSpan) SetAttributeString(key, value string) *TraceSpan {
 	return s
 }
 
+func (s *TraceSpan) SetAttributeInt64(key string, value int64) *TraceSpan {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.attributes = append(s.attributes, &TraceAttribute{Key: key, Value: TraceValue{v: value}})
+	return s
+}
+
 func (t *Tracer) Start(ctx context.Context, spanName string) (context.Context, *TraceSpan) {
 	starters := t.starters
 	if starters == nil {

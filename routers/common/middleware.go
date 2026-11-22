@@ -71,11 +71,21 @@ func RequestContextHandler() func(h http.Handler) http.Handler {
 			ctx, finished := reqctx.NewRequestContext(req.Context(), profDesc)
 			defer finished()
 
+			ctx = gtprof.ExtractHTTPContext(ctx, req.Header)
 			ctx, span := gtprof.GetTracer().Start(ctx, gtprof.TraceSpanHTTP)
 			req = req.WithContext(ctx)
 			defer func() {
 				chiCtx := chi.RouteContext(req.Context())
 				span.SetAttributeString(gtprof.TraceAttrHTTPRoute, chiCtx.RoutePattern())
+				span.SetAttributeString(gtprof.TraceAttrHTTPMethod, req.Method)
+				status := respWriter.WrittenStatus()
+				if status == 0 {
+					status = http.StatusOK
+				}
+				span.SetAttributeInt64(gtprof.TraceAttrHTTPStatus, int64(status))
+				if status >= http.StatusInternalServerError {
+					span.SetStatus(1, http.StatusText(status)) // 1 = OTel codes.Error
+				}
 				span.End()
 			}()
 
